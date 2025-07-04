@@ -14,7 +14,7 @@ on:
     branches: [ "main" ]
     
 env:
-  DOCKER_IMAGE: alreadyServer
+  DOCKER_IMAGE: alreadyserver
   DOCKER_TAG: 0.1
 
 jobs:
