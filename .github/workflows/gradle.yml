@@ -51,7 +51,7 @@ jobs:
     # - name: Build with Gradle 8.9
     #   run: gradle build
     - name: Build & push Docker image
-      uses: docker/build-push-action@v5
+      uses: mr-smithers-excellent/docker-build-push@v6
       with:
         image: ${{secrets.DOCKER_USERNAME}}/$DOCKER_IMAGE
         tags: $DOCKER_TAG
