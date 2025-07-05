@@ -1,10 +1,13 @@
 package com.alreadyemployee.alreadyemployee.user.controller;
 
 
+import com.alreadyemployee.alreadyemployee.exception.BusinessException;
+import com.alreadyemployee.alreadyemployee.exception.ErrorCode;
 import com.alreadyemployee.alreadyemployee.user.controller.dto.AccessTokenResponseDTO;
 import com.alreadyemployee.alreadyemployee.user.controller.dto.SignInRequestDTO;
 import com.alreadyemployee.alreadyemployee.user.controller.dto.SignInResponseDTO;
 import com.alreadyemployee.alreadyemployee.user.controller.dto.SignUpRequestDTO;
+import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
 import com.alreadyemployee.alreadyemployee.user.service.RefreshTokenService;
 import com.alreadyemployee.alreadyemployee.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,10 +51,44 @@ public class UserController {
     }
 
     @PostMapping("/signout")
-    public ResponseEntity<Void> signOut(){
+    public ResponseEntity<Void> signOut() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        refreshTokenService.deleteRefreshToken(authentication);
+
+
+
+        if (!(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            throw new BusinessException(ErrorCode.USER_INVALID_TOKEN);
+        }
+
+        refreshTokenService.deleteRefreshToken(userDetails.getId());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AccessTokenResponseDTO> refreshToken(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        if (refreshToken == null) {
+            throw new BusinessException(ErrorCode.USER_INVALID_TOKEN);
+        }
+
+        SignInResponseDTO newTokens = userService.refreshToken(refreshToken);
+
+        // 새로운 RefreshToken으로 쿠키 재설정
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newTokens.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+
+        response.setHeader("Set-Cookie", refreshTokenCookie.toString());
+
+        // AccessToken만 응답
+        return ResponseEntity.ok(new AccessTokenResponseDTO(newTokens.getAccessToken()));
+
     }
 }

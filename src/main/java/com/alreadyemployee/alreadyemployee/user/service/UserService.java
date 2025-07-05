@@ -61,6 +61,28 @@ public class UserService {
         return new SignInResponseDTO(accessToken,"Bearer",refreshToken);
     }
 
+    public SignInResponseDTO refreshToken(String refreshToken) {
+
+        // 토큰 유효성 검증
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.USER_INVALID_TOKEN);
+        }
+
+        String email = jwtTokenProvider.getUsername(refreshToken);
+        CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
+
+        // DB의 RefreshToken과 일치하는지 확인
+        refreshTokenService.validateRefreshToken(userDetails.getId(), refreshToken);
+
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+        // 새 RefreshToken DB 갱신
+        refreshTokenService.updateRefreshToken(userDetails.getId(), newRefreshToken, 7);
+
+        return new SignInResponseDTO(newAccessToken, "Bearer", newRefreshToken);
+    }
+
 
     public boolean emailDuplicateCheck(String email){
         return userRepository.findByEmail(email).isPresent();

@@ -51,8 +51,7 @@ public class RefreshTokenService {
     }
 
     // 로그아웃 등에서 삭제용
-    public void deleteRefreshToken(Authentication authentication) {
-        Long userId=extractUserId(authentication);
+    public void deleteRefreshToken(Long userId) {
         refreshTokenRepository.findByUserId(userId)
                 .ifPresent(refreshTokenRepository::delete);
     }
