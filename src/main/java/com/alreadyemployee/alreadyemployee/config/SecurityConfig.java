@@ -1,6 +1,7 @@
 package com.alreadyemployee.alreadyemployee.config;
 
 import com.alreadyemployee.alreadyemployee.jwt.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +44,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 //                        해당 경로는 모두 접근 가능하다.
                                 .requestMatchers("/auth/**", "/h2-console/**","/news/**").permitAll()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/error").permitAll()
+
+
 ////                이외 요청은 jwt 토큰이 없으면 접근 불가능하다.
                                 .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, authEx) -> {
+                            System.out.println("🚫 인증 실패 → " + req.getRequestURI());
+                            res.sendError(HttpServletResponse.SC_FORBIDDEN);
+                        })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // 🔥 조립
         return http.build();

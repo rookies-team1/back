@@ -39,5 +39,4 @@ public class News {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
 }
