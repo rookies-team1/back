@@ -2,6 +2,8 @@ package com.alreadyemployee.alreadyemployee.exception.global;
 
 import com.alreadyemployee.alreadyemployee.exception.BusinessException;
 
+import com.alreadyemployee.alreadyemployee.news.controller.NewsController;
+import com.alreadyemployee.alreadyemployee.user.controller.UserController;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,14 +11,17 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 
-@RestControllerAdvice
 @Slf4j
 @RequiredArgsConstructor
+@RestControllerAdvice(annotations = {RestController.class}, basePackageClasses = {UserController.class, NewsController.class})
+
 public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
 
     private final HttpServletRequest request;
@@ -57,12 +62,34 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
                 .body(response);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        // 첫 번째 필드 에러 메시지만 추출
+        String errorMessage = ex.getBindingResult().getFieldError().getDefaultMessage();
+
+        ErrorResponse response = new ErrorResponse(
+                false,
+                "X001",  // 커스텀 코드 (필요시 변경 가능)
+                errorMessage
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
     /**
      * ✅ 모든 정상 응답을 감싸주는 ResponseBodyAdvice
      */
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return true; // 모든 Controller 응답에 적용
+        String requestURI = request.getRequestURI();
+        // Swagger 관련 요청은 제외
+        return !requestURI.startsWith("/v3/api-docs")
+                && !requestURI.startsWith("/swagger")
+                && !requestURI.startsWith("/swagger-ui")
+                && !requestURI.startsWith("/favicon")
+                && !requestURI.contains("springdoc");
     }
 
     @Override
