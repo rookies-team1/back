@@ -3,7 +3,9 @@ package com.alreadyemployee.alreadyemployee.news.controller;
 
 import com.alreadyemployee.alreadyemployee.news.controller.dto.AddNewsRequestDTO;
 import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsDetailResponseDTO;
+import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsListByCompanyResponseDTO;
 import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsSimpleResponseDTO;
+import com.alreadyemployee.alreadyemployee.news.entity.News;
 import com.alreadyemployee.alreadyemployee.news.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -58,5 +60,10 @@ public class NewsController {
     @GetMapping("/{id}/detail")
     public ResponseEntity<NewsDetailResponseDTO> getNewsDetailById(@PathVariable Long id){
         return ResponseEntity.ok(newsService.getNewsDetailById(id));
+    }
+
+    @GetMapping("/{company}")
+    public ResponseEntity<List<NewsListByCompanyResponseDTO>> getNewsListByCompany(@PathVariable String company){
+        return ResponseEntity.ok(newsService.getNewsListByCompany(company));
     }
 }
