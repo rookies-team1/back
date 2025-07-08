@@ -14,13 +14,14 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   app:
-    build: .
+    image: hyeon31/alreadyserver:0.1
     container_name: already-server
     ports:
       - "8080:8080"
     depends_on:
       - db
     environment:
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
