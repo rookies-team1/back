@@ -3,6 +3,7 @@ package com.alreadyemployee.alreadyemployee.news.service;
 
 import com.alreadyemployee.alreadyemployee.news.controller.dto.AddNewsRequestDTO;
 import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsDetailResponseDTO;
+import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsListByCompanyResponseDTO;
 import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsSimpleResponseDTO;
 import com.alreadyemployee.alreadyemployee.news.entity.News;
 import com.alreadyemployee.alreadyemployee.news.repository.NewsRepository;
@@ -59,6 +60,17 @@ public class NewsService {
                 .title(news.getTitle())
                 .contents(news.getContents())
                 .build();
+    }
+
+    public List<NewsListByCompanyResponseDTO> getNewsListByCompany(String company){
+        return newsRepository.findByCompanyName(company).stream()
+                .map(news-> NewsListByCompanyResponseDTO.builder()
+                        .id(news.getId())
+                        .title(news.getTitle())
+                        .publishDate(news.getPublishDate())
+                        .build()
+                )
+                .toList();
     }
 
 }
