@@ -15,6 +15,5 @@ public class SummarizeRequestDTO {
     private String title;
     private String content;
 
-    @JsonProperty("company_name")
     private String companyName;
 }

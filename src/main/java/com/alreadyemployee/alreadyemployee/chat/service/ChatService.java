@@ -38,42 +38,41 @@ public class ChatService {
     }
 
     /**
-     * 뉴스 정보를 요약하기 위해 외부 요약 서버(summarizer API)로 요청을 보내고, 요약 결과를 반환하는 메서드
-     */
-    public String summarizeNews(NewsByIdDTO newsDto) {
-        // 요약 요청에 필요한 DTO 생성
-        SummarizeRequestDTO requestDto = SummarizeRequestDTO.builder()
-                .id(newsDto.getId())
-                .title(newsDto.getTitle())
-                .content(newsDto.getContents())
-                .companyName(newsDto.getCompanyName())
-                .build();
+         * 뉴스 정보를 요약하기 위해 외부 요약 서버(summarizer API)로 요청을 보내고, 요약 결과를 반환하는 메서드
+         */
+        public String summarizeNews(NewsByIdDTO newsDto) {
+            // 요약 요청에 필요한 DTO 생성
+            SummarizeRequestDTO requestDto = SummarizeRequestDTO.builder()
+                    .id(newsDto.getId())
+                    .title(newsDto.getTitle())
+                    .content(newsDto.getContents())
+                    .companyName(newsDto.getCompanyName())
+                    .build();
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(requestDto);
-            System.out.println("보내는 JSON: " + json);
+            try {
+                // RestClient를 사용해 summarizer 서버에 POST 요청
+                SummarizeResponseDTO response = restClient.post()
+                        .uri("/summarize")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(requestDto) // fromValue 제거, 직접 DTO 전달
+                        .retrieve()
+                        .body(SummarizeResponseDTO.class);
 
-            // RestClient를 사용해 summarizer 서버에 POST 요청
-            SummarizeResponseDTO response = restClient.post()
-                    .uri("/summarize")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(fromValue(requestDto))
-                    .retrieve()
-                    .body(SummarizeResponseDTO.class);
+                // 응답이 null이거나 에러 플래그가 true인 경우, 사용자 정의 예외 발생
+                if (response == null || response.isError()) {
+                    // 파이썬 서버에서 에러 내용이 있다면 함께 로깅
+                    String errorContent = (response != null) ? response.getError_content() : "응답 없음";
+                    throw new BusinessException(ErrorCode.SUMMARIZATION_FAILED, errorContent);
+                }
 
+                // 요약 결과 반환
+                return response.getSummary();
 
-            // 응답이 null이거나 에러 플래그가 true인 경우, 사용자 정의 예외 발생
-            if (response == null || response.isError()) {
-                throw new BusinessException(ErrorCode.SUMMARIZATION_FAILED);
+            } catch (Exception e) {
+                // 외부 API 호출 중 예외 발생 시 사용자 정의 예외로 변환하여 처리
+                throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR, e.getMessage());
             }
-
-            // 요약 결과 반환
-            return response.getSummary();
-
-        } catch (Exception e) {
-            // 외부 API 호출 중 예외 발생 시 사용자 정의 예외로 변환하여 처리
-            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR, e.getMessage());
         }
-    }
+
+
 }
