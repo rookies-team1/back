@@ -2,8 +2,11 @@ package com.alreadyemployee.alreadyemployee.chat.controller;
 
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageRequestDTO;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
+import com.alreadyemployee.alreadyemployee.chat.service.LLMClient;
+import com.alreadyemployee.alreadyemployee.exception.global.SuccessResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,13 +21,15 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/chat")
+@RequiredArgsConstructor
 public class ChatController {
 
     /**
+     * 테스트용 코드
      * 채팅 메시지 요청을 처리하는 테스트용 POST 엔드포인트
      * - 다양한 파라미터를 받아 DTO 형태로 매핑 테스트
      */
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping(value = "/test", consumes = "multipart/form-data")
     public ResponseEntity<ChatMessageResponseDTO> testChatDTO (
             //@RequestParam은 Http Post 요청 할 때 body에 들어가는 값
             @RequestParam("sessionId") Long sessionId,      //채팅 세션 id
@@ -56,4 +61,28 @@ public class ChatController {
 
         return ResponseEntity.ok(response);
     }
+
+
+
+
+    private final LLMClient llmClient;
+    /**
+     * 프론트에서 받은 userInputText, userInputFile을
+     * Python LLM 서버(http://localhost:8000)로 전송하는 APi
+     */
+    @PostMapping(value = "/send", consumes = "multipart/form-data")
+    public ResponseEntity<SuccessResponse<String>> sendToLLM(
+            @RequestParam(value = "userInputText", required = false) String userInputText,
+            @RequestParam(value = "userInputFile", required = false) List<MultipartFile> userInputFiles
+    ) throws IOException {
+
+        String llmResponse = llmClient.sendMultipartToLLM(userInputText, userInputFiles);
+
+        return ResponseEntity.ok(
+            new SuccessResponse<>(true, llmResponse, "요청 성공")
+        );
+
+    }
+
+
 }
