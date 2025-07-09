@@ -58,7 +58,7 @@ public class UserService {
         // refreshToken DB 저장
         refreshTokenService.saveOrUpdate(userDetails.getId(), refreshToken, 7);
 
-        return new SignInResponseDTO(accessToken,"Bearer",refreshToken);
+        return new SignInResponseDTO(accessToken,"Bearer",refreshToken,userDetails.getUsername());
     }
 
     public SignInResponseDTO refreshToken(String refreshToken) {
@@ -80,7 +80,7 @@ public class UserService {
         // 새 RefreshToken DB 갱신
         refreshTokenService.updateRefreshToken(userDetails.getId(), newRefreshToken, 7);
 
-        return new SignInResponseDTO(newAccessToken, "Bearer", newRefreshToken);
+        return new SignInResponseDTO(newAccessToken, "Bearer", newRefreshToken,userDetails.getUsername());
     }
 
 
