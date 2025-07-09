@@ -3,6 +3,7 @@ package com.alreadyemployee.alreadyemployee.chat.entity;
 import com.alreadyemployee.alreadyemployee.news.entity.News;
 import com.alreadyemployee.alreadyemployee.user.entity.User;
 import jakarta.persistence.*;
+
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -41,3 +42,4 @@ public class ChatSession {
         this.createdAt = LocalDateTime.now();
     }
 }
+

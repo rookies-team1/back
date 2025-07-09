@@ -1,5 +1,6 @@
 package com.alreadyemployee.alreadyemployee.chat.controller;
 
+
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageRequestDTO;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
 import com.alreadyemployee.alreadyemployee.chat.service.LLMClient;
@@ -83,6 +84,5 @@ public class ChatController {
         );
 
     }
-
 
 }
