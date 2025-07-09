@@ -111,7 +111,7 @@ public class UserController {
 
         response.setHeader("Set-Cookie",refreshTokenCookie.toString());
 
-        return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponseDTO(tokenResponse.getAccessToken()));
+        return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponseDTO(tokenResponse.getAccessToken(),tokenResponse.getUsername()));
     }
 
     @PostMapping("/signout")
@@ -157,7 +157,7 @@ public class UserController {
         response.setHeader("Set-Cookie", refreshTokenCookie.toString());
 
         // AccessToken만 응답
-        return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponseDTO(newTokens.getAccessToken()));
+        return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponseDTO(newTokens.getAccessToken(), newTokens.getUsername()));
 
     }
 }
