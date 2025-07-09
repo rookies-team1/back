@@ -1,10 +1,15 @@
 package com.alreadyemployee.alreadyemployee.chat.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "chat_message")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter @Setter @Builder
 public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

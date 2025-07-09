@@ -7,5 +7,5 @@ public class NewsByIdDTO {
     private Long id;
     private String title;
     private String contents;
-    private String comapnyName;
+    private String companyName;
 }

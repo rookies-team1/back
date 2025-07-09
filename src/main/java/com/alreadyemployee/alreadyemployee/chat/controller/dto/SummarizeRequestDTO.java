@@ -1,22 +1,20 @@
 package com.alreadyemployee.alreadyemployee.chat.controller.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
-@Data
+import lombok.*;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter @Setter @Builder
 public class SummarizeRequestDTO {
-    @NotNull
-    private Long id;  // 뉴스 id
+    private Long id;
+    private String title;
+    private String content;
 
-    @NotBlank
-    private String companyName; // 회사 이름
-
-    @NotBlank
-    private String title; // 뉴스 제목
-
-    @NotBlank
-    private String content; // 뉴스 원문
-
+    @JsonProperty("company_name")
+    private String companyName;
 }

@@ -11,14 +11,19 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
     private final ChatService chatService;
 
+    //지금 이건 안돼요
     @PostMapping("/summarize/{newsId}")
-    public void summarize(@PathVariable Long newsId){
-        NewsByIdDTO newsById=chatService.getNewsById(newsId);
+    public String summarize(@PathVariable Long newsId) {
+        //DB에서 뉴스 데이터 가져오기
+        NewsByIdDTO newsById = chatService.getNewsById(newsId);
 
-        //파이썬으로 요청 넘겨주기
+        //파이썬 서버로 요청 보내기
+        String summary = chatService.summarizeNews(newsById);
 
-        //요청 받아서 클라이언트로 반환
-
+        //파이썬 서버에서 요약 결과를 받아 클라이언트로 응답
+        return summary;
     }
+
+
 
 }

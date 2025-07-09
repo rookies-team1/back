@@ -10,7 +10,10 @@ public enum ErrorCode {
     USER_EMAIL_DUPLICATE("U002","중복된 이메일입니다.",HttpStatus.CONFLICT),
     USER_INVALID_TOKEN("U003","유효하지 않은 토큰입니다.",HttpStatus.BAD_REQUEST),
 
-    NEWS_NOT_FOUND("N001","해당 뉴스를 찾을 수 없습니다. ID: %s",HttpStatus.NOT_FOUND);
+    NEWS_NOT_FOUND("N001","해당 뉴스를 찾을 수 없습니다. ID: %s",HttpStatus.NOT_FOUND),
+
+    SUMMARIZATION_FAILED("S001", "요약 생성 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    EXTERNAL_API_ERROR("S002", "외부 요약 서버와 통신 중 오류 발생", HttpStatus.BAD_GATEWAY);
 
     private final String code;        // A001, A002 등
     private final String message;     // 사용자에게 보여줄 메시지

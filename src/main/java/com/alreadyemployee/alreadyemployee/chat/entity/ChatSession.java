@@ -3,12 +3,16 @@ package com.alreadyemployee.alreadyemployee.chat.entity;
 import com.alreadyemployee.alreadyemployee.news.entity.News;
 import com.alreadyemployee.alreadyemployee.user.entity.User;
 import jakarta.persistence.*;
-
+import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "chat_session")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter @Setter @Builder
 public class ChatSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
