@@ -1,8 +1,8 @@
 package com.alreadyemployee.alreadyemployee.chat.controller.dto;
 
-import lombok.Builder;
+import lombok.*;
 
-@Builder
+@Getter @Setter @Builder
 public class NewsByIdDTO {
     private Long id;
     private String title;
