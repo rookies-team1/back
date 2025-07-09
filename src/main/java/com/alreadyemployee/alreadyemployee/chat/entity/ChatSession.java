@@ -24,22 +24,27 @@ public class ChatSession {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //PK, 값 자동 증가
 
+    // 어떤 사용자가 시작한 채팅인가?
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user; //FK, User 클래스에 대한 LAZY 타입의 외래키 설정
 
+    // 이 채팅 세션은 어떤 뉴스에 대한 것인가?
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "news_id", nullable = false)
+    @JoinColumn(name = "news_id")
     private News news; //FK, News 클래스에 대한 LAZY 타입의 외래키 설정
 
-    private LocalDateTime createdAt; //생성 시간 (밑의 @PrePersist로 자동 설정)
-
-    @OneToMany(mappedBy = "chatSession", cascade = CascadeType.ALL, orphanRemoval = true)
+    // 메시지들
+    @OneToMany(mappedBy = "chatSession", cascade = CascadeType.ALL)
     private List<ChatMessage> messages = new ArrayList<>(); //해당 세션에 연결 된 전체 메세지 목록
 
+    private LocalDateTime createdAt; //생성 시간
+
     @PrePersist
-    public void prePersist() {
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+
 }
 

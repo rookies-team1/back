@@ -19,20 +19,21 @@ public class ChatMessage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //PK, 값 자동 증가
 
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content; //실제 메세지 내용
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_session_id")
     private ChatSession chatSession; //어떠한 세션에 속한 메세지인지 지연 로딩으로 연결
 
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     @Enumerated(EnumType.STRING)
     private ChatType type; // human(질문) / ai(답변)
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content; //실제 메세지 내용
-
-    private LocalDateTime timestamp; //생성 시간(@PrePersist로 현재 시간으로 자동 설정)
-
-    @PrePersist
-    public void prePersist() {
-        this.timestamp = LocalDateTime.now();
-    }
 }

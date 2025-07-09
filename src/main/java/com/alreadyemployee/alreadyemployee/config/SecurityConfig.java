@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 //                        해당 경로는 모두 접근 가능하다.
-                                .requestMatchers("/auth/**", "/h2-console/**","/news/**","/api/chat/**").permitAll()
+                                .requestMatchers("/auth/**", "/h2-console/**","/news/**","/chat/**","/summarize/**").permitAll()
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/error").permitAll()
 
 
