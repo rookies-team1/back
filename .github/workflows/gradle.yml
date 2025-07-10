@@ -34,15 +34,24 @@ jobs:
 
     - name: Create .env file safely
       run: |
+        POSTGRES_DB="${{ secrets.POSTGRES_DB }}"
+        POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
+        POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
+        JWT_SECRET="${{ secrets.JWT_SECRET }}"
+        MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}"
+        MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}"
+    
         cat <<EOF > .env
-        POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-        POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-        POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-        JWT_SECRET=${{ secrets.JWT_SECRET }}
-        MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-        MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+        POSTGRES_DB=$POSTGRES_DB
+        POSTGRES_USER=$POSTGRES_USER
+        POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+        JWT_SECRET=$JWT_SECRET
+        MAIL_USERNAME=$MAIL_USERNAME
+        MAIL_PASSWORD=$MAIL_PASSWORD
         EOF
-        echo "env 파일 업데이트 완료 !"
+    
+        echo "✅ env 파일 생성 완료!"
+        cat .env
 
 
 
