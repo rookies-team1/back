@@ -8,4 +8,5 @@ public class SummarizeResponseDTO {
     private String summary;
     private boolean error;
     private String error_content;
+
 }

@@ -82,4 +82,5 @@ jobs:
           echo "✅ EC2 내 .env 파일:"
           docker-compose pull
           docker-compose down
+
           docker-compose up -d

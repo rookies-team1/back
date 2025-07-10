@@ -41,11 +41,10 @@ public class SecurityConfig {
                 // csrf 인증 비활성화, 나중에 비활성화 코드 지우기
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth//                        해당 경로는 모두 접근 가능하다.
 //                        해당 경로는 모두 접근 가능하다.
-                                .requestMatchers("/auth/**", "/h2-console/**","/news/**","/api/chat/**").permitAll()
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/error").permitAll()
-
+                                .requestMatchers("/auth/**", "/h2-console/**", "/news/**", "/api/chat/**").permitAll()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/error").permitAll()
 
 ////                이외 요청은 jwt 토큰이 없으면 접근 불가능하다.
                                 .anyRequest().authenticated()
@@ -61,10 +60,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UrlBasedCorsConfigurationSource corsConfigurationSource(){
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // 프론트엔드 도메인 명시
-//        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        //        config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedOriginPatterns(List.of("*")); // ✅ 권장 방식
 
 
