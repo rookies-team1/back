@@ -1,28 +1,30 @@
 package com.alreadyemployee.alreadyemployee.chat.controller.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 채팅 요청 정보를 담는 DTO 클래스
- * 클라이언트에서 채팅 관련 요청을 보낼 때 사용하는 데이터 구조
+ * main.py:  AI 기반 뉴스 질의응답 및 요약 기능을 제공하는 FastAPI 백엔드 서버
+ * main.py 안의 클래스 중 하나인 ChatRequest 클래스
+ *
  */
-@Getter @Setter
+@Getter @Setter @Builder
 public class ChatRequestDTO {
-    private int sessionId;       // 채팅 세션 ID
-    private int userId;          // 사용자 ID
-    private String question;     // 사용자가 입력한 질문
-    private int chatMessageId;   // 메시지 ID
-    private int newsId;          // 관련 뉴스 ID
-    private String company;      // 회사명
-    private List<HistoryMessageDTO> chatHistory; // 이전 채팅 내역
-    /**
-     * 채팅 내역의 개별 메시지를 나타내는 내부 클래스
-     */
-    @Getter @Setter
-    public static class HistoryMessageDTO {
-        private String type;     // 메시지 타입 ("hunam", "ai")
-        private String content;  // 메시지 내용
-    }
+
+    //back
+    private Integer sessionId; //ChatSession의 기본키는 Long 타입 변수
+    private Integer userId; //User의 기본키는 Long 타입 변수
+    private Integer chatMessageId;
+    private Integer newsId; // 뉴스 ID (Integer로 변경)
+    private String company; //News의 companyName은 String 형 변수
+    private List<HistoryMessageDTO> chatHistory;
+
+    //front
+    private Optional<MultipartFile> file; // 사용자가 넘겨주는 파일(있을수도 없을수도 있음)
+    // front: 사용자가 front에서 넘겨 준 질문
+    // back: front에서 넘겨받은 질문
+    private String question;
+
 }

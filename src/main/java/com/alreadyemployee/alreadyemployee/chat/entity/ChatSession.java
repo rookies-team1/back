@@ -14,8 +14,6 @@ import java.util.List;
  */
 @Entity
 @Table(name = "chat_session")
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter @Setter @Builder
 public class ChatSession {
     @Id

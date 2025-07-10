@@ -4,13 +4,18 @@ import com.alreadyemployee.alreadyemployee.exception.BusinessException;
 
 import com.alreadyemployee.alreadyemployee.news.controller.NewsController;
 import com.alreadyemployee.alreadyemployee.user.controller.UserController;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -105,17 +110,25 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body,
                                   MethodParameter returnType,
-                                  org.springframework.http.MediaType selectedContentType,
+                                  MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  org.springframework.http.server.ServerHttpRequest request,
-                                  org.springframework.http.server.ServerHttpResponse response) {
-        // 예외 응답은 그대로 return
+                                  ServerHttpRequest request,
+                                  ServerHttpResponse response) {
+
         if (body instanceof ErrorResponse) return body;
 
-        return new SuccessResponse<>(
-                true,
-                body,
-                "요청이 성공적으로 완료되었습니다."
-        );
+        // 🔥 String 타입은 SuccessResponse로 감싸면 안 됨 → 충돌 발생
+        if (body instanceof String) {
+            // SuccessResponse를 JSON 문자열로 수동 변환
+            SuccessResponse<String> wrapper = new SuccessResponse<>(true, (String) body, "요청이 성공적으로 완료되었습니다.");
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.writeValueAsString(wrapper);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("JSON 변환 실패", e);
+            }
+        }
+
+        return new SuccessResponse<>(true, body, "요청이 성공적으로 완료되었습니다.");
     }
 }

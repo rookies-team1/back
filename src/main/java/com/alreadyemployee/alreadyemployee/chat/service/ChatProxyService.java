@@ -1,103 +1,125 @@
 package com.alreadyemployee.alreadyemployee.chat.service;
 
+import com.alreadyemployee.alreadyemployee.chat.controller.dto.ChatRequestDTO;
+import com.alreadyemployee.alreadyemployee.chat.controller.dto.ChatResponseDTO;
+import com.alreadyemployee.alreadyemployee.chat.entity.ChatSession;
+import com.alreadyemployee.alreadyemployee.chat.repository.ChatSessionRepository;
 import com.alreadyemployee.alreadyemployee.exception.BusinessException;
 import com.alreadyemployee.alreadyemployee.exception.ErrorCode;
+import com.alreadyemployee.alreadyemployee.news.entity.News;
+import com.alreadyemployee.alreadyemployee.news.repository.NewsRepository;
+import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
+import com.alreadyemployee.alreadyemployee.user.entity.User;
+import com.alreadyemployee.alreadyemployee.user.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-/**
- * FastAPI 서버와 통신하는 프록시 서비스
- * 채팅 요청을 FastAPI 서버로 전달하고 응답을 받아오는 역할을 담당
- */
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class ChatProxyService {
 
-    /**
-     * application.properties에서 FastAPI 서버 URL을 가져옴
-     */
+    private final RestClient restClient;
+    private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
+    private final NewsRepository newsRepository;
+    private final ChatSessionRepository chatSessionRepository;
+
     @Value("${fastapi.server.url}")
-    private String fastApiBaseUrl;
+    private String fastapiServerUrl;
 
-    /**
-     * HTTP 요청을 수행하기 위한 RestTemplate 인스턴스
-     */
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Transactional
+    public ChatResponseDTO proxyChatRequest(
+            String jsonRequest, MultipartFile file, CustomUserDetails userDetails
+    ) {
+        // 1. JSON 요청 파싱
+        ChatRequestDTO chatRequestDTO = parseJsonRequest(jsonRequest);
 
-    /**
-     * 채팅 요청과 파일을 FastAPI 서버로 전송하는 메서드
-     *
-     * @param jsonRequest JSON 형식의 채팅 요청 문자열
-     * @param file 선택적으로 전송할 파일 (null 가능)
-     * @return FastAPI 서버의 응답 문자열
-     * @throws BusinessException FastAPI 서버 통신 중 오류 발생 시
-     */
-    public String sendMultipartChat(String jsonRequest, MultipartFile file) {
+        // 2. DB에서 User와 News 엔티티 조회
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.USER_NOT_FOUND, userDetails.getId().toString()
+                ));
+        News news = newsRepository.findById(chatRequestDTO.getNewsId().longValue()) // Integer -> Long 변환
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.NEWS_NOT_FOUND, String.valueOf(chatRequestDTO.getNewsId())
+                ));
+
+        // 3. ChatSession 조회 또는 생성
+        ChatSession session = chatSessionRepository.findByUserAndNews(user, news)
+                .orElseGet(() -> createNewChatSession(user, news));
+
+        // 4. Python 서버로 보낼 최종 요청 데이터 구성
+        //    - 인증된 사용자 ID와 조회된 세션 ID로 요청 데이터를 보강
+        // 기존 jsonRequest를 그대로 사용하므로 주석 처리
+
+        // 5. 멀티파트 본문 생성
+        MultiValueMap<String, Object> body = createMultipartBody(jsonRequest, file);
+
+        // 6. Python FastAPI 서버로 요청 전송 및 응답 반환
+        return sendRequestToFastApi(body);
+    }
+
+    private ChatRequestDTO parseJsonRequest(String jsonRequest) {
         try {
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("request", jsonRequest);
+            return objectMapper.readValue(jsonRequest, ChatRequestDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new BusinessException(ErrorCode.INVALID_JSON_FORMAT, e.getMessage());
+        }
+    }
 
-            // 파일이 존재하고 비어있지 않은 경우 파일도 요청에 추가
-            if (file != null && !file.isEmpty()) {
-                // MultipartFile을 Resource로 변환하여 요청에 포함
-                Resource fileResource = new InputStreamResource(file.getInputStream()) {
-                    @Override
-                    public String getFilename() {
-                        return file.getOriginalFilename();
-                    }
+    private ChatSession createNewChatSession(User user, News news) {
+        ChatSession newSession = ChatSession.builder()
+                .user(user)
+                .news(news)
+                .build();
+        return chatSessionRepository.save(newSession);
+    }
 
-                    @Override
-                    public long contentLength() throws IOException {
-                        return file.getSize();
-                    }
-                };
-                body.add("file", fileResource);
+    private MultiValueMap<String, Object> createMultipartBody(String jsonRequest, MultipartFile file) {
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("request", jsonRequest);
+
+        if (file != null && !file.isEmpty()) {
+            try {
+                body.add("file", file.getResource());
+            } catch (Exception e) {
+                // 파일 관련 오류 처리
+                throw new BusinessException(ErrorCode.FILE_PROCESSING_ERROR, "파일 리소스 접근 중 오류: " + e.getMessage());
             }
+        }
+        return body;
+    }
 
-            // multipart/form-data 형식으로 요청 헤더 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-            // HTTP 요청 엔티티 생성
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            // FastAPI 서버의 채팅 엔드포인트 URL 구성
-            String targetUrl = fastApiBaseUrl + "/chat";
-
-            // POST 요청 전송 및 응답 수신
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                    targetUrl,
-                    requestEntity,
-                    String.class
-            );
-
-            // 성공적인 응답(2xx)인 경우 응답 본문 반환
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return response.getBody();
-            } else {
-                // 서버에서 오류 응답을 받은 경우 예외 발생
-                throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR, "요약 서버에서 실패 응답 수신");
-            }
-
-        } catch (IOException e) {
-            // 파일 처리 중 발생한 입출력 예외
-            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR, "파일 처리 중 오류 발생: " + e.getMessage());
-        } catch (Exception e) {
-            // 다른 모든 예외 처리
-            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR, e.getMessage());
+    private ChatResponseDTO sendRequestToFastApi(MultiValueMap<String, Object> body) {
+        String fastapiEndpoint = fastapiServerUrl + "/chat";
+        try {
+            ChatResponseDTO response = restClient.post()
+                    .uri(fastapiEndpoint)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(body)
+                    .retrieve()
+                    .body(ChatResponseDTO.class);
+            return response;
+        } catch (HttpStatusCodeException e) {
+            // FastAPI 서버가 4xx, 5xx 응답을 반환한 경우
+            String errorMessage = String.format("FastAPI 오류: %s, 응답: %s", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR, errorMessage);
+        } catch (RestClientException e) {
+            // 네트워크 오류 등 통신 자체에 문제가 발생한 경우
+            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR, "FastAPI 서버 통신 실패: " + e.getMessage());
         }
     }
 }

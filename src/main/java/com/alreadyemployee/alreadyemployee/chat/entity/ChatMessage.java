@@ -1,5 +1,6 @@
 package com.alreadyemployee.alreadyemployee.chat.entity;
 
+import com.alreadyemployee.alreadyemployee.chat.dto.ChatType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,8 +12,6 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "chat_message")
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter @Setter @Builder
 public class ChatMessage {
     @Id
@@ -20,11 +19,15 @@ public class ChatMessage {
     private Long id;  // 메시지 ID
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;  // 메시지 내용
-
+    private String content;  // 실제 메시지 내용
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_session_id")
     private ChatSession chatSession;    // 메세지가 속한 채팅 세션
+
+    @Enumerated(EnumType.STRING)
+    private ChatType type; // human(질문) / ai(답변)
+
 
     private LocalDateTime createdAt;    // 메세지 생성 시간
 
