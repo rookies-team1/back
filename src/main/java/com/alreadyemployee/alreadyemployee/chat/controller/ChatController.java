@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatController {
-    private final LLMClient llmClient;
     private final RestClient restClient;
     private final ChatService chatService;
 
