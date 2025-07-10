@@ -25,17 +25,17 @@ public class ChatController {
      * @param newsId 요약할 뉴스의 ID
      * @return 뉴스 요약 결과 문자열
      */
-    @PostMapping("/summarize/{newsId}")
-    public String summarize(@PathVariable Long newsId) {
-        //DB에서 뉴스 데이터 가져오기
-        NewsByIdDTO newsById = chatService.getNewsById(newsId);
-
-        //파이썬 서버로 요청 보내기
-        String summary = chatService.summarizeNews(newsById);
-
-        //파이썬 서버에서 요약 결과를 받아 클라이언트로 응답
-        return summary;
-    }
+//    @PostMapping("/summarize/{newsId}")
+//    public String summarize(@PathVariable Long newsId) {
+//        //DB에서 뉴스 데이터 가져오기
+//        NewsByIdDTO newsById = chatService.getNewsById(newsId);
+//
+//        //파이썬 서버로 요청 보내기
+//        String summary = chatService.summarizeNews(newsById);
+//
+//        //파이썬 서버에서 요약 결과를 받아 클라이언트로 응답
+//        return summary;
+//    }
 
     /**
      * 파일을 포함한 채팅 요청을 처리하는 API 엔드포인트
