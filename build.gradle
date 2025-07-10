@@ -33,6 +33,10 @@ dependencies {
 	// JJWT API
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 
+	//mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+
 	// 런타임 시 실제 구현체
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	// JSON 파싱 (Jackson 사용 시)
