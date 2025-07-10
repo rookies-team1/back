@@ -1,23 +1,24 @@
 package com.alreadyemployee.alreadyemployee.config;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
+
 import org.springframework.beans.factory.annotation.Value;
-/**
- * @Bean을 사용해서 RestClient 인터페이스의 일부 필드(baseUrl, messageConverters)를 미리 설정하는 클래스
- * RestClient 인터페이스를 사용할 때 마다 baseUrl, messageConverters이 지정되어 사용됨
- */
+
 @Profile("prod")
 @Configuration
 @Slf4j
 public class RestClientConfig {
+
 
 //    @Bean
 //    public RestClient restClient(RestClient.Builder builder) {
@@ -35,7 +36,7 @@ public class RestClientConfig {
 //    }
 
     @Value("${llm.base-url}")
-        private String llmBaseUrl;
+    private String llmBaseUrl;
 
     @Bean
     public RestClient restClient(RestClient.Builder builder) {
@@ -54,4 +55,5 @@ public class RestClientConfig {
     public void debugLLM() {
         System.out.println("🔥🔥🔥 LLM base-url = " + llmBaseUrl);
     }
+
 }

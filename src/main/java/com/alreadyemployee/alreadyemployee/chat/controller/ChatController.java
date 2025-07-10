@@ -1,9 +1,13 @@
 package com.alreadyemployee.alreadyemployee.chat.controller;
 
+
 import com.alreadyemployee.alreadyemployee.chat.controller.dto.*;
 import com.alreadyemployee.alreadyemployee.chat.service.ChatProxyService;
 import com.alreadyemployee.alreadyemployee.chat.service.ChatService;
 import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
+
+import com.alreadyemployee.alreadyemployee.exception.global.SuccessResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,11 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatController {
-
-    private final ChatProxyService chatProxyService;
-
+    private final LLMClient llmClient;
     private final RestClient restClient;
     private final ChatService chatService;
+
+    private final ChatProxyService chatProxyService;
 
     @GetMapping("/ping")
     public PingResponseDTO ping(){

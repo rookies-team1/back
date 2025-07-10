@@ -28,5 +28,4 @@ public class EmailVerification {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 }
