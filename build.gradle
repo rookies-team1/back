@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.alreadyemployee'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 
 java {
 	toolchain {
@@ -32,6 +32,10 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 	// JJWT API
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+
+	//mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 
 	// 런타임 시 실제 구현체
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'

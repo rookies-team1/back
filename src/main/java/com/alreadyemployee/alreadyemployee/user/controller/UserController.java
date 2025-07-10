@@ -3,10 +3,7 @@ package com.alreadyemployee.alreadyemployee.user.controller;
 
 import com.alreadyemployee.alreadyemployee.exception.BusinessException;
 import com.alreadyemployee.alreadyemployee.exception.ErrorCode;
-import com.alreadyemployee.alreadyemployee.user.controller.dto.AccessTokenResponseDTO;
-import com.alreadyemployee.alreadyemployee.user.controller.dto.SignInRequestDTO;
-import com.alreadyemployee.alreadyemployee.user.controller.dto.SignInResponseDTO;
-import com.alreadyemployee.alreadyemployee.user.controller.dto.SignUpRequestDTO;
+import com.alreadyemployee.alreadyemployee.user.controller.dto.*;
 import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
 import com.alreadyemployee.alreadyemployee.user.service.RefreshTokenService;
 import com.alreadyemployee.alreadyemployee.user.service.UserService;
@@ -88,8 +85,6 @@ public class UserController {
     })
     @PostMapping("/signup")
     @Operation(summary="회원 가입",description = "사용자 이름, 이메일, 비밀번호를 요청 body로 받아 회원 가입을 진행합니다.")
-
-
     public ResponseEntity<Void> signUp(@RequestBody @Valid SignUpRequestDTO request){
         userService.signUp(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -159,5 +154,17 @@ public class UserController {
         // AccessToken만 응답
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponseDTO(newTokens.getAccessToken(), newTokens.getUsername()));
 
+    }
+
+    @PostMapping("/email")
+    public ResponseEntity<String> sendCode(@RequestBody EmailRequest request) {
+        userService.sendVerificationCode(request.getEmail());
+        return ResponseEntity.ok("인증 코드가 전송되었습니다.");
+    }
+
+    @PostMapping("/email/verify")
+    public ResponseEntity<String> verifyCode(@RequestBody VerifyRequest request) {
+        boolean result = userService.verifyCode(request.getEmail(), request.getCode());
+        return ResponseEntity.ok(result ? "이메일 인증 성공" : "인증 실패");
     }
 }
