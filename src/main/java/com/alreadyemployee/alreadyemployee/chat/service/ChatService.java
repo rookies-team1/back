@@ -1,12 +1,16 @@
 package com.alreadyemployee.alreadyemployee.chat.service;
 
+import com.alreadyemployee.alreadyemployee.chat.controller.dto.NewsByIdDTO;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatType;
 import com.alreadyemployee.alreadyemployee.chat.entity.ChatMessage;
 import com.alreadyemployee.alreadyemployee.chat.entity.ChatSession;
 import com.alreadyemployee.alreadyemployee.chat.repository.ChatMessageRepository;
 import com.alreadyemployee.alreadyemployee.chat.repository.ChatSessionRepository;
+import com.alreadyemployee.alreadyemployee.exception.BusinessException;
+import com.alreadyemployee.alreadyemployee.exception.ErrorCode;
 import com.alreadyemployee.alreadyemployee.news.entity.News;
+import com.alreadyemployee.alreadyemployee.news.repository.NewsRepository;
 import com.alreadyemployee.alreadyemployee.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,18 @@ public class ChatService {
 
     private final ChatSessionRepository chatSessionRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final NewsRepository newsRepository;
+
+    public NewsByIdDTO getNewsById(Long newsId){
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NEWS_NOT_FOUND));
+        return NewsByIdDTO.builder()
+                .id(news.getId())
+                .title(news.getTitle())
+                .contents(news.getContents())
+                .comapnyName(news.getCompanyName())
+                .build();
+    }
 
     /**
      * 채팅 세션을 저장하고 사용자 메시지를 저장한 후, Python LLM으로 전송하고,
