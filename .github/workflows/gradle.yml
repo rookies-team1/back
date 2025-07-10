@@ -32,17 +32,17 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
-    - name: Create .env file safely (공백 포함 secret 처리)
-      run: |
-        echo "POSTGRES_DB=\"${{ secrets.POSTGRES_DB }}\"" > .env
-        echo "POSTGRES_USER=\"${{ secrets.POSTGRES_USER }}\"" >> .env
-        echo "POSTGRES_PASSWORD=\"${{ secrets.POSTGRES_PASSWORD }}\"" >> .env
-        echo "JWT_SECRET=\"${{ secrets.JWT_SECRET }}\"" >> .env
-        echo "MAIL_USERNAME=\"${{ secrets.MAIL_USERNAME }}\"" >> .env
-        echo "MAIL_PASSWORD=\"${{ secrets.MAIL_PASSWORD }}\"" >> .env
 
-        echo "✅ .env 생성 완료 (GitHub Actions 내부):"
-        cat .env
+    - name: Create .env file safely (NO quotes, handles spaces)
+      run: |
+        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" > .env
+        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+        echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+
+        echo "✅ .env 파일 생성 완료 (CI 환경):"
 
     - name: Build & push Docker image
       uses: mr-smithers-excellent/docker-build-push@v6
@@ -70,15 +70,14 @@ jobs:
           cd already-server
           git pull origin main
 
-          echo "POSTGRES_DB=\"${{ secrets.POSTGRES_DB }}\"" > .env
-          echo "POSTGRES_USER=\"${{ secrets.POSTGRES_USER }}\"" >> .env
-          echo "POSTGRES_PASSWORD=\"${{ secrets.POSTGRES_PASSWORD }}\"" >> .env
-          echo "JWT_SECRET=\"${{ secrets.JWT_SECRET }}\"" >> .env
-          echo "MAIL_USERNAME=\"${{ secrets.MAIL_USERNAME }}\"" >> .env
-          echo "MAIL_PASSWORD=\"${{ secrets.MAIL_PASSWORD }}\"" >> .env
 
-          echo "✅ EC2 내 .env 생성 완료:"
-          cat .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" > .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
 
-          docker-compose pull
+          echo "✅ EC2 내 .env 파일:"
+          docker-compose down
           docker-compose up -d
