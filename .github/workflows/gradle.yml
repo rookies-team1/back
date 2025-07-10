@@ -32,19 +32,16 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
-    - name: Create .env file safely
+    - name: Create .env file safely (NO quotes, handles spaces)
       run: |
-        cat <<EOF > .env
-        POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-        POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-        POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-        JWT_SECRET=${{ secrets.JWT_SECRET }}
-        MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-        MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-        EOF
-        echo "env 파일 업데이트 완료 !"
+        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" > .env
+        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+        echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
 
-
+        echo "✅ .env 파일 생성 완료 (CI 환경):"
 
     - name: Build & push Docker image
       uses: mr-smithers-excellent/docker-build-push@v6
@@ -64,32 +61,21 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd ~
+
           if [ ! -d "already-server" ]; then
             git clone https://github.com/rookies-team1/back.git already-server
           fi
+
           cd already-server
           git pull origin main
 
-          # Inject secrets as shell variables
-          POSTGRES_DB="${{ secrets.POSTGRES_DB }}"
-          POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
-          POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
-          JWT_SECRET="${{ secrets.JWT_SECRET }}"
-          MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}"
-          MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}"
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" > .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
 
-          # Create .env file
-          cat <<EOF > .env
-          POSTGRES_DB=$POSTGRES_DB
-          POSTGRES_USER=$POSTGRES_USER
-          POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-          JWT_SECRET=$JWT_SECRET
-          MAIL_USERNAME=$MAIL_USERNAME
-          MAIL_PASSWORD=$MAIL_PASSWORD
-          EOF
-
-          echo "✅ .env 파일 생성 완료:"
-          cat .env
-
-          docker-compose pull
+          echo "✅ EC2 내 .env 파일:"
+          docker-compose down
           docker-compose up -d
