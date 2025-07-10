@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
 
+@Profile("prod")
 @Configuration
 @Slf4j
 public class RestClientConfig {
@@ -24,7 +26,7 @@ public class RestClientConfig {
                     converters.add(new MappingJackson2HttpMessageConverter()); // 🔥 JSON 변환기 등록
                 })
                 //llm-svc 가 로컬에서 8000 포트로 띄위져 있을 때의 URL 설정
-                .baseUrl(llmBaseUrl)
+                .baseUrl("http://llm-svc:8000")
                 .build();
     }
 
