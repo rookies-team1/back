@@ -1,5 +1,6 @@
 package com.alreadyemployee.alreadyemployee.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,5 +22,10 @@ public class RestClientConfig {
                 //llm-svc 가 로컬에서 8000 포트로 띄위져 있을 때의 URL 설정
                 .baseUrl(llmBaseUrl)
                 .build();
+    }
+
+    @PostConstruct
+    public void debugLLM() {
+        System.out.println("🔥🔥🔥 LLM base-url = " + llmBaseUrl);
     }
 }
