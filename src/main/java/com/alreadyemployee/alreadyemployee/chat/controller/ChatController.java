@@ -1,26 +1,20 @@
 package com.alreadyemployee.alreadyemployee.chat.controller;
 
 
-import com.alreadyemployee.alreadyemployee.chat.controller.dto.NewsByIdDTO;
-import com.alreadyemployee.alreadyemployee.chat.controller.dto.PingResponseDTO;
-import com.alreadyemployee.alreadyemployee.chat.controller.dto.SummarizeResponseDTO;
+import com.alreadyemployee.alreadyemployee.chat.controller.dto.*;
+import com.alreadyemployee.alreadyemployee.chat.service.ChatProxyService;
 import com.alreadyemployee.alreadyemployee.chat.service.ChatService;
-import com.alreadyemployee.alreadyemployee.chat.service.LLMClient;
+import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
+
 import com.alreadyemployee.alreadyemployee.exception.global.SuccessResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
 
-import java.util.List;
-
-/**
- * 채팅 기능 테스트용 컨트롤러
- * - 클라이언트로부터 채팅 관련 데이터를 multipart/form-data로 받아 처리
- * - 실제 서비스 연동 전 DTO 처리 테스트 목적의 컨트롤러
- */
 @RestController
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
@@ -28,6 +22,8 @@ public class ChatController {
     private final LLMClient llmClient;
     private final RestClient restClient;
     private final ChatService chatService;
+
+    private final ChatProxyService chatProxyService;
 
     @GetMapping("/ping")
     public PingResponseDTO ping(){
@@ -41,26 +37,21 @@ public class ChatController {
         return restClient.post().uri("/summarize").body(newsById).retrieve().body(SummarizeResponseDTO.class);
     }
 
-
-
     /**
-     * 프론트에서 받은 userInputText, userInputFile을
-     * Python LLM 서버(http://localhost:8000)로 전송하는 APi
+     * 클라이언트로부터 채팅 요청(JSON, 파일)을 받아 처리하고 응답합니다.
+//   * @param chatRequestDTO 채팅 요청 데이터 (질문, 파일, 뉴스 ID 등)
+     * @param userDetails 현재 인증된 사용자 정보 (Spring Security가 주입)
+     * @return 처리 결과가 담긴 ChatResponseDTO
      */
-    @PostMapping(value = "/send", consumes = "multipart/form-data")
-    public ResponseEntity<SuccessResponse<String>> sendToLLM(
-            @RequestParam(value = "userInputText", required = false) String userInputText,
-            @RequestParam(value = "userInputFile", required = false) List<MultipartFile> userInputFiles
-    ) throws IOException {
-
-        String llmResponse = llmClient.sendMultipartToLLM(userInputText, userInputFiles);
-
-        return ResponseEntity.ok(
-            new SuccessResponse<>(true, llmResponse, "요청 성공")
-        );
-
+    @PostMapping(value = "/chat-with-file", consumes = {"multipart/form-data"})
+    public ResponseEntity<ChatResponseDTO> chatWithFile(
+            @RequestPart("request") String jsonRequest, // JSON 요청 문자열
+            @RequestPart(value = "file", required = false) MultipartFile file, // 파일 (선택 사항)
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        // ChatRequestDTO를 직접 받지 않고, jsonRequest와 file을 받아서
+        // ChatProxyService에서 ChatRequestDTO를 생성하도록 변경
+        ChatResponseDTO response = chatProxyService.proxyChatRequest(jsonRequest, file, userDetails);
+        return ResponseEntity.ok(response);
     }
-
-
-
 }
