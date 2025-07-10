@@ -28,7 +28,7 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
-      
+
 networks:
   default:
     external:
