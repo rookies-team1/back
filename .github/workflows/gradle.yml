@@ -32,6 +32,7 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
+
     - name: Create .env file safely (NO quotes, handles spaces)
       run: |
         echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" > .env
@@ -68,6 +69,7 @@ jobs:
 
           cd already-server
           git pull origin main
+
 
           echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" > .env
           echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
