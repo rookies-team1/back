@@ -49,9 +49,11 @@ public class ChatController {
             @RequestPart(value = "file", required = false) MultipartFile file, // 파일 (선택 사항)
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        System.out.println("요청 사용자: "+userDetails.getEmail());
         // ChatRequestDTO를 직접 받지 않고, jsonRequest와 file을 받아서
         // ChatProxyService에서 ChatRequestDTO를 생성하도록 변경
         ChatResponseDTO response = chatProxyService.proxyChatRequest(jsonRequest, file, userDetails);
         return ResponseEntity.ok(response);
     }
+
 }
