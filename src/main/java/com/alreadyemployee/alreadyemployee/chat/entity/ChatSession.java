@@ -14,7 +14,10 @@ import java.util.List;
  */
 @Entity
 @Table(name = "chat_session")
-@Getter @Setter @Builder
+@Getter @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

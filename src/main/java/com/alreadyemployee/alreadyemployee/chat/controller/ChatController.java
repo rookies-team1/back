@@ -44,15 +44,14 @@ public class ChatController {
      * @param userDetails 현재 인증된 사용자 정보 (Spring Security가 주입)
      * @return 처리 결과가 담긴 ChatResponseDTO
      */
-    @PostMapping(value = "/chat-with-file", consumes = {"multipart/form-data"})
-    public ResponseEntity<ChatResponseDTO> chatWithFile(
-            @RequestPart("request") String jsonRequest, // JSON 요청 문자열
-            @RequestPart(value = "file", required = false) MultipartFile file, // 파일 (선택 사항)
+    @PostMapping(value = "/ask", consumes = {"multipart/form-data"})
+    public ResponseEntity<String> ask(
+            @RequestPart("question") String question,
+            @RequestPart("newsId") Long newsId,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        // ChatRequestDTO를 직접 받지 않고, jsonRequest와 file을 받아서
-        // ChatProxyService에서 ChatRequestDTO를 생성하도록 변경
-        ChatResponseDTO response = chatProxyService.proxyChatRequest(jsonRequest, file, userDetails);
-        return ResponseEntity.ok(response);
+        String answer = chatService.handleChat(userDetails.getId(), newsId, question, file);
+        return ResponseEntity.ok(answer);
     }
 }

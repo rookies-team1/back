@@ -12,11 +12,17 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "chat_message")
-@Getter @Setter @Builder
+@Getter @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;  // 메시지 ID
+
+    @Column
+    private Long groupId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;  // 실제 메시지 내용
