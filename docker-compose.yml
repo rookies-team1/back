@@ -14,7 +14,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   app:
-    image: hyeon31/alreadyserver:0.1
+    image: hyeon31/alreadyserver:0.2
     container_name: already-server
     ports:
       - "8080:8080"
