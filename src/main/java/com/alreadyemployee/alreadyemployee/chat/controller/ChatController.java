@@ -30,13 +30,14 @@ public class ChatController {
         return restClient.get().uri("/").retrieve().body(PingResponseDTO.class);
     }
 
+
     @PostMapping("/summarize/{newsId}")
     public SummarizeResponseDTO summarize(@PathVariable Long newsId){
         NewsByIdDTO newsById=chatService.getNewsById(newsId);
+        System.out.println(newsById.getCompany_name());
 //        파이썬으로 요청 넘겨주기
         return restClient.post().uri("/summarize").body(newsById).retrieve().body(SummarizeResponseDTO.class);
     }
-
     /**
      * 클라이언트로부터 채팅 요청(JSON, 파일)을 받아 처리하고 응답합니다.
 //   * @param chatRequestDTO 채팅 요청 데이터 (질문, 파일, 뉴스 ID 등)
