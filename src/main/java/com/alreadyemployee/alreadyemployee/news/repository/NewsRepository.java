@@ -20,7 +20,12 @@ public interface NewsRepository extends JpaRepository<News,Long> {
     @Query("SELECT n.title FROM News n WHERE n.companyName = :companyName")
     List<String> findTitlesByCompanyName(@Param("companyName") String companyName);
 
-    // 새로운 커스텀 쿼리: id와 contents만 선택
-    @Query("SELECT new com.alreadyemployee.alreadyemployee.news.controller.dto.NewsIdContentResponseDTO(n.id, n.contents) FROM News n")
+    // id와 contents만 담아 넘겨주는 JQPL 쿼리
+    //반환받을 id와 contents를 한 번에 넘겨주려고 dto 파일을 만듦
+    //select로 반환해줄때 dto 객체에 넣어 원하는 값을 묶어줌
+    @Query("SELECT " +
+                "new com.alreadyemployee.alreadyemployee." +
+            "       news.controller.dto.NewsIdContentResponseDTO(n.id, n.contents) " +
+            "FROM News n")
     List<NewsIdContentResponseDTO> findAllIdContent();
 }
