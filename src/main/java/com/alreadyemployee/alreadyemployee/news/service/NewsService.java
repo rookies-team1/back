@@ -1,16 +1,14 @@
 package com.alreadyemployee.alreadyemployee.news.service;
 
 
-import com.alreadyemployee.alreadyemployee.news.controller.dto.AddNewsRequestDTO;
-import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsDetailResponseDTO;
-import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsListByCompanyResponseDTO;
-import com.alreadyemployee.alreadyemployee.news.controller.dto.NewsSimpleResponseDTO;
+import com.alreadyemployee.alreadyemployee.news.controller.dto.*;
 import com.alreadyemployee.alreadyemployee.news.entity.News;
 import com.alreadyemployee.alreadyemployee.news.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,15 +62,19 @@ public class NewsService {
                 .build();
     }
 
-    public List<NewsListByCompanyResponseDTO> getNewsListByCompany(String company){
+    public List<NewsListByCompanyResponseDTO> getNewsListByCompany(String company) {
         return newsRepository.findByCompanyName(company).stream()
-                .map(news-> NewsListByCompanyResponseDTO.builder()
+                .map(news -> NewsListByCompanyResponseDTO.builder()
                         .id(news.getId())
                         .title(news.getTitle())
                         .publishDate(news.getPublishDate())
                         .build()
                 )
                 .toList();
+    }
+
+    public List<NewsIdContentResponseDTO> getAllNewsIdContent() {
+        return newsRepository.findAllIdContent();
     }
 
 }
