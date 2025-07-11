@@ -43,6 +43,7 @@ public class NewsService {
                 .map(news -> NewsSimpleResponseDTO.builder()
                         .id(news.getId())
                         .title(news.getTitle())
+                        .publishDate(news.getPublishDate())
                         .build())
                 .toList();
     }
@@ -59,6 +60,7 @@ public class NewsService {
         return NewsDetailResponseDTO.builder()
                 .title(news.getTitle())
                 .contents(news.getContents())
+                .publishDate(news.getPublishDate())
                 .build();
     }
 
