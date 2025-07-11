@@ -30,8 +30,8 @@ public class ChatService {
         return NewsByIdDTO.builder()
                 .id(news.getId())
                 .title(news.getTitle())
-                .contents(news.getContents())
-                .comapnyName(news.getCompanyName())
+                .content(news.getContents())
+                .company_name(news.getCompanyName())
                 .build();
     }
 
