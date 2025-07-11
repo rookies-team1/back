@@ -34,7 +34,7 @@ public class ChatController {
     @PostMapping("/summarize/{newsId}")
     public SummarizeResponseDTO summarize(@PathVariable Long newsId){
         NewsByIdDTO newsById=chatService.getNewsById(newsId);
-        System.out.println(newsById.getCompany_name());
+        System.out.println(newsById.toString());
 //        파이썬으로 요청 넘겨주기
         return restClient.post().uri("/summarize").body(newsById).retrieve().body(SummarizeResponseDTO.class);
     }
@@ -46,8 +46,8 @@ public class ChatController {
      */
     @PostMapping(value = "/ask", consumes = {"multipart/form-data"})
     public ResponseEntity<String> ask(
-            @RequestPart("question") String question,
-            @RequestPart("newsId") Long newsId,
+            @RequestParam("question") String question,
+            @RequestParam("newsId") Long newsId,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
