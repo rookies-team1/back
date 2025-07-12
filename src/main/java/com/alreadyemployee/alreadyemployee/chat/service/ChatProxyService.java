@@ -44,14 +44,25 @@ public class ChatProxyService {
                 ObjectMapper mapper = new ObjectMapper();
                 String json = mapper.writeValueAsString(dto);
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<String> jsonPart = new HttpEntity<>(json, headers);
-
                 MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-                form.add("request", jsonPart);
+                form.add("request", json); // <-- HttpEntity 제거!
                 form.add("file", new MultipartInputStreamFileResource(file.getInputStream(), file.getOriginalFilename()));
+
+                System.out.println("✅ [form 데이터 구성]");
+                for (String key : form.keySet()) {
+                    System.out.println("- Key: " + key);
+                    for (Object value : form.get(key)) {
+                        if (value instanceof String jsonPart) {
+                            System.out.println("  → JSON String: " + jsonPart);
+                        } else if (value instanceof MultipartInputStreamFileResource fileRes) {
+                            System.out.println("  → 파일 이름: " + fileRes.getFilename());
+                            System.out.println("  → 리소스 타입: " + fileRes.getClass().getSimpleName());
+                        } else {
+                            System.out.println("  → 기타: " + value.toString());
+                        }
+                    }
+                }
+
 
                 return req.body(form).retrieve().body(ChatResponseDTO.class);
             } else {
