@@ -46,6 +46,7 @@ public class ChatService {
                 .build();
     }
 
+    @Transactional
     public String handleChat(Long userId, Long newsId, String question, MultipartFile file) {
 //        user 찾기
         User user = userRepository.findById(userId).orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));

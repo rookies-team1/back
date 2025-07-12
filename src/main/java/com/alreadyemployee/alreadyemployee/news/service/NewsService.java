@@ -6,6 +6,7 @@ import com.alreadyemployee.alreadyemployee.news.entity.News;
 import com.alreadyemployee.alreadyemployee.news.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class NewsService {
     private final NewsRepository newsRepository;
 
+    @Transactional(readOnly = true)
     public void addNews(AddNewsRequestDTO data) {
         News news = News.builder()
                 .companyName(data.getCompanyName())
@@ -27,6 +29,7 @@ public class NewsService {
         newsRepository.save(news);
     }
 
+    @Transactional(readOnly = true)
     public List<String> getAllCompanyNames() {
         return newsRepository.findAll()
                 .stream()
@@ -35,6 +38,7 @@ public class NewsService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<NewsSimpleResponseDTO> getAllNewsTitles() {
         return newsRepository.findAll()
                 .stream()
@@ -46,6 +50,7 @@ public class NewsService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public String getNewsTitleById(Long id) {
         return newsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("뉴스를 찾을 수 없습니다."))
