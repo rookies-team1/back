@@ -10,14 +10,9 @@ import lombok.*;
  *     question: str
  *     answer: str
  */
-@Getter @Setter @Builder
-public class ChatResponseDTO {
-    // Python의 session_id -> Java의 sessionId (ObjectMapper가 snake_case -> camelCase 변환)
-    private Integer sessionId;
-    // Python의 chat_message_id -> Java의 chatMessageId
-    private Integer chatMessageId;
-    // Python의 question -> Java의 question
-    private String question;
-    // Python의 answer -> Java의 answer
-    private String answer;
-}
+public record ChatResponseDTO(
+        Long session_id,
+        Long chat_message_id,
+        String question,
+        String answer
+) {}

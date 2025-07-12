@@ -14,7 +14,10 @@ import java.util.List;
  */
 @Entity
 @Table(name = "chat_session")
-@Getter @Setter @Builder
+@Getter @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +34,7 @@ public class ChatSession {
     private User user;  // 어떤 사용자인지
 
     // 메시지들
-    @OneToMany(mappedBy = "chatSession", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chatSession", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ChatMessage> messages = new ArrayList<>(); // 세션에 속한 메시지 목록
 
     private LocalDateTime createdAt;    // 세션 생성 시간
