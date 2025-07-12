@@ -40,24 +40,21 @@ public class ChatProxyService {
         RestClient.RequestBodySpec req = restClient.post().uri("/chat");
 
         try {
+            // ✅ JSON 변환은 공통
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(dto);
+
+            // ✅ 항상 multipart/form-data 구성
+            MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+            form.add("request", json); // ✅ request는 무조건 넣음
+
             if (file != null && !file.isEmpty()) {
-                ObjectMapper mapper = new ObjectMapper();
-                String json = mapper.writeValueAsString(dto);
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<String> jsonPart = new HttpEntity<>(json, headers);
-
-                MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-                form.add("request", jsonPart);
-                form.add("file", new MultipartInputStreamFileResource(file.getInputStream(), file.getOriginalFilename()));
-
-                return req.body(form).retrieve().body(ChatResponseDTO.class);
-            } else {
-                // JSON only
-                return req.body(dto).retrieve().body(ChatResponseDTO.class);
+                form.add("file", new MultipartInputStreamFileResource(
+                        file.getInputStream(), file.getOriginalFilename()));
             }
+            // ✅ multipart/form-data 전송
+            return req.body(form).retrieve().body(ChatResponseDTO.class);
+
         } catch (IOException e) {
             throw new RuntimeException("파일 전송 실패", e);
         }
