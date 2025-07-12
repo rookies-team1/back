@@ -9,6 +9,7 @@ import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
 import com.alreadyemployee.alreadyemployee.exception.global.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,12 @@ public class ChatController {
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("인증되지 않은 사용자입니다.");
+        }
+
         String answer = chatService.handleChat(userDetails.getId(), newsId, question, file);
         return ResponseEntity.ok(answer);
     }
