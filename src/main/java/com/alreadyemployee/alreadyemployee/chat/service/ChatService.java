@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,7 +55,11 @@ public class ChatService {
 //        user에 해당하는 newsId를 찾고 없으면 ChatSession 생성
         ChatSession session = chatSessionRepository.findByUserIdAndNewsId(userId, newsId)
                 .orElseGet(() -> chatSessionRepository.save(
-                        ChatSession.builder().user(user).news(news).build()
+                        ChatSession.builder()
+                                .user(user)
+                                .news(news)
+                                .messages(new ArrayList<>()) // ✅ null 방지
+                                .build()
                 ));
 
         // 질문 저장
