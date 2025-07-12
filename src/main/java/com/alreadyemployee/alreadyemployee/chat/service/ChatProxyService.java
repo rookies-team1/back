@@ -40,35 +40,21 @@ public class ChatProxyService {
         RestClient.RequestBodySpec req = restClient.post().uri("/chat");
 
         try {
+            // ✅ JSON 변환은 공통
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(dto);
+
+            // ✅ 항상 multipart/form-data 구성
+            MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+            form.add("request", json); // ✅ request는 무조건 넣음
+
             if (file != null && !file.isEmpty()) {
-                ObjectMapper mapper = new ObjectMapper();
-                String json = mapper.writeValueAsString(dto);
-
-                MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-                form.add("request", json); // <-- HttpEntity 제거!
-                form.add("file", new MultipartInputStreamFileResource(file.getInputStream(), file.getOriginalFilename()));
-
-                System.out.println("✅ [form 데이터 구성]");
-                for (String key : form.keySet()) {
-                    System.out.println("- Key: " + key);
-                    for (Object value : form.get(key)) {
-                        if (value instanceof String jsonPart) {
-                            System.out.println("  → JSON String: " + jsonPart);
-                        } else if (value instanceof MultipartInputStreamFileResource fileRes) {
-                            System.out.println("  → 파일 이름: " + fileRes.getFilename());
-                            System.out.println("  → 리소스 타입: " + fileRes.getClass().getSimpleName());
-                        } else {
-                            System.out.println("  → 기타: " + value.toString());
-                        }
-                    }
-                }
-
-
-                return req.body(form).retrieve().body(ChatResponseDTO.class);
-            } else {
-                // JSON only
-                return req.body(dto).retrieve().body(ChatResponseDTO.class);
+                form.add("file", new MultipartInputStreamFileResource(
+                        file.getInputStream(), file.getOriginalFilename()));
             }
+            // ✅ multipart/form-data 전송
+            return req.body(form).retrieve().body(ChatResponseDTO.class);
+
         } catch (IOException e) {
             throw new RuntimeException("파일 전송 실패", e);
         }
