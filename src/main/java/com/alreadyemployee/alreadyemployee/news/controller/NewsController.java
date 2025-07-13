@@ -1,11 +1,14 @@
 package com.alreadyemployee.alreadyemployee.news.controller;
 
 
+import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
 import com.alreadyemployee.alreadyemployee.news.controller.dto.*;
 import com.alreadyemployee.alreadyemployee.news.service.NewsService;
+import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,5 +71,7 @@ public class NewsController {
     public ResponseEntity<List<NewsIdContentResponseDTO>> getAllNewsIdContent() {
         return ResponseEntity.ok(newsService.getAllNewsIdContent());
     }
+
+
 
 }

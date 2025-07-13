@@ -6,6 +6,7 @@ import com.alreadyemployee.alreadyemployee.chat.controller.dto.HistoryMessageDTO
 import com.alreadyemployee.alreadyemployee.chat.controller.dto.NewsByIdDTO;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatType;
+import com.alreadyemployee.alreadyemployee.chat.dto.GroupedChatMessageDTO;
 import com.alreadyemployee.alreadyemployee.chat.entity.ChatMessage;
 import com.alreadyemployee.alreadyemployee.chat.entity.ChatSession;
 import com.alreadyemployee.alreadyemployee.chat.repository.ChatMessageRepository;
@@ -23,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -98,5 +101,43 @@ public class ChatService {
                 .build());
 
         return response.answer();
+    }
+
+    public List<GroupedChatMessageDTO> getChatMessagesByNewsAndUser(Long newsId, Long userId) {
+        ChatSession session = chatSessionRepository.findByUserIdAndNewsId(userId, newsId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+
+        List<ChatMessage> messages = chatMessageRepository.findByChatSession(session);
+
+        Map<Long, List<ChatMessage>> grouped = messages.stream()
+                .filter(m -> m.getGroupId() != null)  // groupId 없는 메시지 제외
+                .collect(Collectors.groupingBy(ChatMessage::getGroupId));
+
+        return grouped.entrySet().stream()
+                .sorted(Map.Entry.<Long, List<ChatMessage>>comparingByKey().reversed())
+                .map(entry -> {
+                    Long groupId = entry.getKey();
+                    List<ChatMessage> groupMessages = entry.getValue();
+
+                    ChatMessageResponseDTO question = groupMessages.stream()
+                            .filter(m -> m.getType() == ChatType.human)
+                            .findFirst()
+                            .map(ChatMessageResponseDTO::fromEntity)
+                            .orElse(null);
+
+                    ChatMessageResponseDTO answer = groupMessages.stream()
+                            .filter(m -> m.getType() == ChatType.ai)
+                            .findFirst()
+                            .map(ChatMessageResponseDTO::fromEntity)
+                            .orElse(null);
+
+                    return GroupedChatMessageDTO.builder()
+                            .groupId(groupId)
+                            .question(question)
+                            .answer(answer)
+                            .build();
+                })
+                .toList();
+
     }
 }

@@ -2,6 +2,8 @@ package com.alreadyemployee.alreadyemployee.chat.controller;
 
 
 import com.alreadyemployee.alreadyemployee.chat.controller.dto.*;
+import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
+import com.alreadyemployee.alreadyemployee.chat.dto.GroupedChatMessageDTO;
 import com.alreadyemployee.alreadyemployee.chat.service.ChatProxyService;
 import com.alreadyemployee.alreadyemployee.chat.service.ChatService;
 import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
@@ -15,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -60,5 +64,14 @@ public class ChatController {
 
         String answer = chatService.handleChat(userDetails.getId(), newsId, question, file);
         return ResponseEntity.ok(answer);
+    }
+
+    @GetMapping("/chat-history/{newsId}")
+    public ResponseEntity<List<GroupedChatMessageDTO>> getChatHistoryByNewsId(
+            @PathVariable Long newsId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        List<GroupedChatMessageDTO> chatMessages = chatService.getChatMessagesByNewsAndUser(newsId, userDetails.getId());
+        return ResponseEntity.ok(chatMessages);
     }
 }

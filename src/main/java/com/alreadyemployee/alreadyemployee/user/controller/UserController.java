@@ -167,4 +167,5 @@ public class UserController {
         boolean result = userService.verifyCode(request.getEmail(), request.getCode());
         return ResponseEntity.ok(result ? "이메일 인증 성공" : "인증 실패");
     }
+
 }

@@ -14,6 +14,8 @@ public enum ErrorCode {
 
     NEWS_NOT_FOUND("N001", "해당 뉴스를 찾을 수 없습니다. ID: %s", HttpStatus.NOT_FOUND),
 
+    CHAT_SESSION_NOT_FOUND("C001","채팅 기록이 없습니다.",HttpStatus.NOT_FOUND),
+
     EXTERNAL_API_ERROR("S002", "외부 요약 서버와 통신 중 오류 발생", HttpStatus.BAD_GATEWAY),
 
     INVALID_JSON_FORMAT("C001", "JSON 형식이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),

@@ -1,5 +1,6 @@
 package com.alreadyemployee.alreadyemployee.chat.dto;
 
+import com.alreadyemployee.alreadyemployee.chat.entity.ChatMessage;
 import lombok.*;
 
 /**
@@ -15,4 +16,22 @@ public class ChatMessageResponseDTO {
     private String question; //사용자의 질문
     private String answer; //python LLM 모델의 답변
 //    private LocalDateTime timeStamp;    //필요할 때 넣는 시간 기록
+
+    public static ChatMessageResponseDTO fromEntity(ChatMessage message) {
+        return ChatMessageResponseDTO.builder()
+                .sessionId(message.getChatSession().getId())
+                .chatMessageId(message.getId())
+                .question(message.getType().isHuman() ? message.getContent() : null)
+                .answer(message.getType().isAI() ? message.getContent() : null)
+                .build();
+    }
+
+    public static ChatMessageResponseDTO fromEntity(ChatMessage humanMessage, ChatMessage aiMessage) {
+        return ChatMessageResponseDTO.builder()
+                .sessionId(humanMessage.getChatSession().getId())
+                .chatMessageId(humanMessage.getId())  // 질문 기준으로 ID 사용 (원하면 groupId로 교체 가능)
+                .question(humanMessage.getContent())
+                .answer(aiMessage != null ? aiMessage.getContent() : null)
+                .build();
+    }
 }

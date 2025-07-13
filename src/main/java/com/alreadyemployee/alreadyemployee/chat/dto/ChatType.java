@@ -6,5 +6,13 @@ package com.alreadyemployee.alreadyemployee.chat.dto;
  * - ai: LLM 모델 응답
  */
 public enum ChatType {
-    human, ai
+    human, ai;
+
+    public boolean isHuman() {
+        return this == human;
+    }
+
+    public boolean isAI() {
+        return this == ai;
+    }
 }
