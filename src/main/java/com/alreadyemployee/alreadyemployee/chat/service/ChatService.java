@@ -69,6 +69,9 @@ public class ChatService {
                 .content(question)
                 .build());
 
+        questionMsg.setGroupId(questionMsg.getId());
+        chatMessageRepository.save(questionMsg); // update
+
         // chat_history 구성
         List<HistoryMessageDTO> history = session.getMessages().stream()
                 .map(msg -> new HistoryMessageDTO(msg.getType().name().toLowerCase(), msg.getContent()))
