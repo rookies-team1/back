@@ -1,12 +1,8 @@
 package com.alreadyemployee.alreadyemployee.chat.service;
 
-import com.alreadyemployee.alreadyemployee.chat.controller.dto.ChatProxyRequestDTO;
-import com.alreadyemployee.alreadyemployee.chat.controller.dto.ChatResponseDTO;
-import com.alreadyemployee.alreadyemployee.chat.controller.dto.HistoryMessageDTO;
-import com.alreadyemployee.alreadyemployee.chat.controller.dto.NewsByIdDTO;
+import com.alreadyemployee.alreadyemployee.chat.controller.dto.*;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatType;
-import com.alreadyemployee.alreadyemployee.chat.dto.GroupedChatMessageDTO;
 import com.alreadyemployee.alreadyemployee.chat.entity.ChatMessage;
 import com.alreadyemployee.alreadyemployee.chat.entity.ChatSession;
 import com.alreadyemployee.alreadyemployee.chat.repository.ChatMessageRepository;
@@ -114,27 +110,33 @@ public class ChatService {
                 .collect(Collectors.groupingBy(ChatMessage::getGroupId));
 
         return grouped.entrySet().stream()
-                .sorted(Map.Entry.<Long, List<ChatMessage>>comparingByKey().reversed())
+                .sorted(Map.Entry.comparingByKey()) // 오름차순
                 .map(entry -> {
                     Long groupId = entry.getKey();
                     List<ChatMessage> groupMessages = entry.getValue();
 
-                    ChatMessageResponseDTO question = groupMessages.stream()
+                    ChatMessage human = groupMessages.stream()
                             .filter(m -> m.getType() == ChatType.human)
                             .findFirst()
-                            .map(ChatMessageResponseDTO::fromEntity)
                             .orElse(null);
 
-                    ChatMessageResponseDTO answer = groupMessages.stream()
+                    ChatMessage ai = groupMessages.stream()
                             .filter(m -> m.getType() == ChatType.ai)
                             .findFirst()
-                            .map(ChatMessageResponseDTO::fromEntity)
                             .orElse(null);
 
                     return GroupedChatMessageDTO.builder()
                             .groupId(groupId)
-                            .question(question)
-                            .answer(answer)
+                            .question(human != null ? SimpleMessageDTO.builder()
+                                    .chatMessageId(human.getId())
+                                    .sessionId(human.getChatSession().getId())
+                                    .content(human.getContent())
+                                    .build() : null)
+                            .answer(ai != null ? SimpleMessageDTO.builder()
+                                    .chatMessageId(ai.getId())
+                                    .sessionId(ai.getChatSession().getId())
+                                    .content(ai.getContent())
+                                    .build() : null)
                             .build();
                 })
                 .toList();

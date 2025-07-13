@@ -3,7 +3,6 @@ package com.alreadyemployee.alreadyemployee.chat.controller;
 
 import com.alreadyemployee.alreadyemployee.chat.controller.dto.*;
 import com.alreadyemployee.alreadyemployee.chat.dto.ChatMessageResponseDTO;
-import com.alreadyemployee.alreadyemployee.chat.dto.GroupedChatMessageDTO;
 import com.alreadyemployee.alreadyemployee.chat.service.ChatProxyService;
 import com.alreadyemployee.alreadyemployee.chat.service.ChatService;
 import com.alreadyemployee.alreadyemployee.user.entity.CustomUserDetails;
