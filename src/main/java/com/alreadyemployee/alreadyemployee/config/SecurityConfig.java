@@ -3,6 +3,7 @@ package com.alreadyemployee.alreadyemployee.config;
 import com.alreadyemployee.alreadyemployee.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,8 +22,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static java.rmi.server.LogStream.log;
+
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;  // 🔥 추가
 
@@ -43,7 +47,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth//                        해당 경로는 모두 접근 가능하다.
 //                        해당 경로는 모두 접근 가능하다.
-                                .requestMatchers("/auth/**", "/h2-console/**", "/news/**", "/api/chat/**","/favicon.ico").permitAll()
+                                .requestMatchers("/auth/**", "/h2-console/**","/favicon.ico").permitAll()
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/error").permitAll()
 
 ////                이외 요청은 jwt 토큰이 없으면 접근 불가능하다.
@@ -51,7 +55,6 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, authEx) -> {
-                            System.out.println("🚫 인증 실패 → " + req.getRequestURI());
                             res.sendError(HttpServletResponse.SC_FORBIDDEN);
                         })
                 )
@@ -63,9 +66,7 @@ public class SecurityConfig {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // 프론트엔드 도메인 명시
-        //        config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedOriginPatterns(List.of("*")); // ✅ 권장 방식
-
+        config.setAllowedOrigins(List.of("http://localhost:5173","http://3.95.218.80"));
 
         // 허용 메서드
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

@@ -15,11 +15,13 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
-
     private String refreshToken;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime expiresAt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true) // ✅ unique key
+    private User user;
 }
